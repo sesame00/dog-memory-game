@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>�����O��½�P</title>
+
+
+
+    <style>
+
+        * {
+
+            box-sizing: border-box;
+
+        }
+
+
+
+        body {
+
+            margin: 0;
+
+            min-height: 100vh;
+
+            display: grid;
+
+            place-items: center;
+
+            padding: 24px 16px;
+
+            background-color: #E3C59A;
+
+            color: #472719;
+
+            font-family: system-ui, "Microsoft JhengHei", sans-serif;
+
+        }
+
+
+
+        .game {
+
+            width: min(100%, 520px);
+
+        }
+
+
+
+        h1 {
+
+            margin: 0 0 6px;
+
+            font-size: clamp(1.65rem, 5vw, 2.4rem);
+
+        }
+
+
+
+        .instructions {
+
+            margin: 0 0 18px;
+
+        }
+
+
+
+        .toolbar {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 12px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+
+        .score {
+
+            margin: 0;
+
+            font-weight: bold;
+
+        }
+
+
+
+        button {
+
+            font: inherit;
+
+        }
+
+
+
+        .restart {
+
+            padding: 8px 14px;
+
+            border: 0;
+
+            border-radius: 8px;
+
+            background: #472719;
+
+            color: #fff8eb;
+
+            cursor: pointer;
+
+        }
+
+
+
+        /* �T�w�|��A16 �i�d���|�Ʀ� 4 �� 4�C */
+
+        .board {
+
+            display: grid;
+
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+
+            gap: clamp(6px, 2vw, 12px);
+
+        }
+
+
+
+        .card {
+
+            position: relative;
+
+            display: grid;
+
+            place-items: center;
+
+            min-width: 0;
+
+            aspect-ratio: 1;
+
+            padding: 0;
+
+            overflow: hidden;
+
+            border: 2px solid #773012;
+
+            border-radius: 12px;
+
+            background-color: #A54213;
+
+            cursor: pointer;
+
+        }
+
+
+
+        /* �έ��ƪ��|ä��P�٧βզ���j�P�I�C */
+
+        .card::before {
+
+            content: "";
+
+            position: absolute;
+
+            inset: 4px;
+
+            border: 1px solid #f4d4a680;
+
+            border-radius: 8px;
+
+            background-image:
+
+                radial-gradient(ellipse 6px 10px at 50% 30%, #f4d4a6b8 95%, transparent),
+
+                radial-gradient(ellipse 6px 10px at 50% 70%, #f4d4a6b8 95%, transparent),
+
+                radial-gradient(ellipse 10px 6px at 30% 50%, #f4d4a6b8 95%, transparent),
+
+                radial-gradient(ellipse 10px 6px at 70% 50%, #f4d4a6b8 95%, transparent),
+
+                repeating-linear-gradient(45deg, transparent 0 13px, #f4d4a64d 13px 14px),
+
+                repeating-linear-gradient(-45deg, transparent 0 13px, #f4d4a64d 13px 14px);
+
+            background-size: 40px 40px;
+
+            background-position: center;
+
+        }
+
+
+
+        .dog-image {
+
+            display: block;
+
+            width: 100%;
+
+            height: 100%;
+
+            visibility: hidden;
+
+        }
+
+
+
+        .card.is-open {
+
+            background-color: #fff6e7;
+
+        }
+
+
+
+        .card.is-open::before {
+
+            display: none;
+
+        }
+
+
+
+        .card.is-open .dog-image {
+
+            visibility: visible;
+
+        }
+
+
+
+        .card.is-matched {
+
+            border-color: #517044;
+
+            background-color: #edf1df;
+
+        }
+
+
+
+        .card[aria-disabled="true"] {
+
+            cursor: default;
+
+        }
+
+
+
+        button:focus-visible {
+
+            outline: 3px solid #472719;
+
+            outline-offset: 3px;
+
+        }
+
+
+
+        .message {
+
+            min-height: 1.5em;
+
+            margin: 16px 0 0;
+
+        }
+
+
+
+        .play-area {
+
+            position: relative;
+
+        }
+
+
+
+        .timer {
+
+            position: absolute;
+
+            top: 0;
+
+            right: calc(100% + 16px);
+
+            width: 108px;
+
+            padding: 10px 8px;
+
+            border: 2px solid #A54213;
+
+            border-radius: 12px;
+
+            background-color: #fff6e7;
+
+            text-align: center;
+
+        }
+
+
+
+        .timer-label,
+
+        .timer-value {
+
+            display: block;
+
+        }
+
+
+
+        .timer-label {
+
+            font-size: 0.875rem;
+
+        }
+
+
+
+        .timer-value {
+
+            font-size: 1.4rem;
+
+            font-variant-numeric: tabular-nums;
+
+        }
+
+
+
+        .timer.is-urgent .timer-value {
+
+            color: #a2211b;
+
+            animation: timer-pulse 1s ease-in-out infinite;
+
+        }
+
+
+
+        .timer.is-expired .timer-value {
+
+            color: #a2211b;
+
+            animation: none;
+
+        }
+
+
+
+        @keyframes timer-pulse {
+
+            50% {
+
+                transform: scale(1.12);
+
+            }
+
+        }
+
+
+
+        @media (max-width: 800px) {
+
+            .timer {
+
+                position: static;
+
+                margin-bottom: 12px;
+
+            }
+
+        }
+
+
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .timer.is-urgent .timer-value {
+
+                animation: none;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+
+<body>
+
+    <main class="game">
+
+        <h1>�����O��½�P</h1>
+
+        <p class="instructions">�C��½��i�P�A���P�@�ت����N�o 1 ���C</p>
+
+
+
+        <div class="toolbar">
+
+            <p class="score">���� <span id="score">0</span> / 8</p>
+
+            <button class="restart" id="restart" type="button">���s�}�l</button>
+
+        </div>
+
+
+
+        <div class="play-area">
+
+            <div class="timer" id="timer">
+
+                <span class="timer-label">�Ѿl�ɶ�</span>
+
+                <strong class="timer-value"><span id="timeLeft">90</span> ��</strong>
+
+            </div>
+
+
+
+            <div class="board" id="board" role="group" aria-label="�O��½�P�P��"></div>
+
+        </div>
+
+        <p class="message" id="message" role="status"></p>
+
+    </main>
+
+
+
+    <script>
+
+        // �C�Ӫ���N���@�ؤ��ءCearShape �M�w�ի��A��l��챱����P�����C
+
+        const dogs = [
+
+            { id: "bernese", name: "�B���s��", fur: "#332B2A", ears: "#292425", muzzle: "#FFF8E9", earShape: "drop", marking: "blaze", accent: "#BF713F" },
+
+            { id: "shiba", name: "���", fur: "#CA763D", ears: "#AF5830", muzzle: "#FFF0D5", earShape: "point", marking: "cheeks" },
+
+            { id: "corgi", name: "�_���", fur: "#D58B40", ears: "#BB6C32", muzzle: "#FFF8E9", earShape: "tall", marking: "blaze" },
+
+            { id: "golden", name: "�����y��", fur: "#DBA552", ears: "#AF7333", muzzle: "#F3C97F", earShape: "long", marking: "ruff" },
+
+            { id: "labrador", name: "�ԥ��Ԧh��", fur: "#79503C", ears: "#58382E", muzzle: "#A06D50", earShape: "drop", marking: "broad" },
+
+            { id: "frenchie", name: "�k�갫����", fur: "#B89373", ears: "#806453", muzzle: "#55413C", earShape: "bat", marking: "folds" },
+
+            { id: "samoyed", name: "�ļ��C", fur: "#FFFCF4", ears: "#E4D6C7", muzzle: "#FFFDF9", earShape: "point", marking: "ruff" },
+
+            { id: "collie", name: "��Ҫ��Ϥ�", fur: "#38383F", ears: "#292932", muzzle: "#FFFCF1", earShape: "fold", marking: "blaze" }
+
+        ];
+
+
+
+        // �զ����|�e�b�����A�k���H�蹳ø�s�C
+
+        const earPaths = {
+
+            point: "M28 56 Q17 24 28 16 Q38 17 54 42 Z",
+
+            tall: "M27 57 Q11 15 24 9 Q38 5 54 42 Z",
+
+            drop: "M38 35 Q11 32 13 72 Q17 91 34 75 L49 48 Z",
+
+            long: "M39 35 Q11 33 12 72 Q10 98 27 101 Q43 98 42 72 L50 46 Z",
+
+            bat: "M28 56 Q14 22 20 12 Q34 0 48 37 L54 49 Z",
+
+            fold: "M29 59 Q9 45 17 30 Q27 20 43 31 L52 49 Z"
+
+        };
+
+
+
+        const board = document.querySelector("#board");
+
+        const scoreDisplay = document.querySelector("#score");
+
+        const message = document.querySelector("#message");
+
+        const restartButton = document.querySelector("#restart");
+
+
+
+        let firstCard = null;
+
+        let score = 0;
+
+        let flipBackTimer = null;
+
+        const timerBox = document.querySelector("#timer");
+
+        const timeDisplay = document.querySelector("#timeLeft");
+
+        const gameSeconds = 90;
+
+
+
+        let secondsLeft = gameSeconds;
+
+        let countdownId = null;
+
+        let deadline = null;
+
+        let gameOver = false;
+
+
+
+        function stopCountdown() {
+
+            window.clearInterval(countdownId);
+
+            countdownId = null;
+
+        }
+
+
+
+        function updateCountdown() {
+
+            // �ι�ڸg�L���ɶ��p��A���^�����ɤ]�|��s�쥿�T���ơC
+
+            secondsLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+
+            timeDisplay.textContent = secondsLeft;
+
+
+
+            timerBox.classList.toggle("is-urgent", secondsLeft > 0 && secondsLeft <= 10);
+
+            timerBox.classList.toggle("is-expired", secondsLeft === 0);
+
+
+
+            if (secondsLeft === 0) {
+
+                gameOver = true;
+
+                stopCountdown();
+
+                message.textContent = `�ɶ���I�A�t��F ${score} / ${dogs.length} �աC`;
+
+            }
+
+        }
+
+
+
+        function startCountdown() {
+
+            deadline = Date.now() + gameSeconds * 1000;
+
+            countdownId = window.setInterval(updateCountdown, 100);
+
+        }
+
+        // �q���ݩ��e���A��C�i�P�M�]�t�ۤv�b�����e���H���@�i�洫�C
+
+        function shuffle(cards) {
+
+            for (let i = cards.length - 1; i > 0; i--) {
+
+                const randomIndex = Math.floor(Math.random() * (i + 1));
+
+                [cards[i], cards[randomIndex]] = [cards[randomIndex], cards[i]];
+
+            }
+
+        }
+
+
+
+        function drawDog(dog) {
+
+            const canvas = document.createElement("canvas");
+
+            canvas.className = "dog-image";
+
+            canvas.width = 240;
+
+            canvas.height = 240;
+
+            canvas.setAttribute("aria-hidden", "true");
+
+
+
+            const ctx = canvas.getContext("2d");
+
+            ctx.scale(2, 2);
+
+
+
+            function ellipse(x, y, width, height, color) {
+
+                ctx.beginPath();
+
+                ctx.ellipse(x, y, width, height, 0, 0, Math.PI * 2);
+
+                ctx.fillStyle = color;
+
+                ctx.fill();
+
+            }
+
+
+
+            function fillPath(path, color) {
+
+                ctx.fillStyle = color;
+
+                ctx.fill(new Path2D(path));
+
+            }
+
+
+
+            fillPath(earPaths[dog.earShape], dog.ears);
+
+            ctx.save();
+
+            ctx.translate(120, 0);
+
+            ctx.scale(-1, 1);
+
+            fillPath(earPaths[dog.earShape], dog.ears);
+
+            ctx.restore();
+
+
+
+            if (dog.marking === "ruff") {
+
+                ellipse(37, 82, 18, 17, dog.fur);
+
+                ellipse(83, 82, 18, 17, dog.fur);
+
+                ellipse(60, 92, 25, 18, dog.fur);
+
+            }
+
+
+
+            ellipse(60, 67, dog.marking === "broad" ? 37 : 34, 33, dog.fur);
+
+
+
+            if (dog.marking === "blaze") {
+
+                fillPath("M57 35 Q65 41 65 58 L71 77 H49 L55 55 Z", dog.muzzle);
+
+            }
+
+
+
+            if (dog.marking === "cheeks") {
+
+                ellipse(39, 78, 13, 10, dog.muzzle);
+
+                ellipse(81, 78, 13, 10, dog.muzzle);
+
+            }
+
+
+
+            if (dog.accent) {
+
+                ellipse(44, 56, 8, 4, dog.accent);
+
+                ellipse(76, 56, 8, 4, dog.accent);
+
+                ellipse(37, 80, 8, 9, dog.accent);
+
+                ellipse(83, 80, 8, 9, dog.accent);
+
+            }
+
+
+
+            ellipse(60, 81, dog.marking === "broad" ? 24 : 19, 15, dog.muzzle);
+
+
+
+            if (dog.marking === "folds") {
+
+                fillPath("M49 52 Q60 44 71 52 Q60 48 49 52 Z", "#806453");
+
+                fillPath("M49 57 Q60 50 71 57 Q60 54 49 57 Z", "#806453");
+
+            }
+
+
+
+            ellipse(44, 65, 3.5, 4.5, "#201B1A");
+
+            ellipse(76, 65, 3.5, 4.5, "#201B1A");
+
+            ellipse(45, 63, 1, 1, "#FFFFFF");
+
+            ellipse(77, 63, 1, 1, "#FFFFFF");
+
+            ellipse(60, 77, 7, 4.5, "#241D1B");
+
+
+
+            ctx.beginPath();
+
+            ctx.moveTo(53, 86);
+
+            ctx.quadraticCurveTo(60, 93, 67, 86);
+
+            ctx.strokeStyle = "#241D1B";
+
+            ctx.lineWidth = 1.6;
+
+            ctx.lineCap = "round";
+
+            ctx.stroke();
+
+
+
+            return canvas;
+
+        }
+
+
+
+        function createCard(dog, index) {
+
+            const button = document.createElement("button");
+
+            const position = index + 1;
+
+
+
+            button.type = "button";
+
+            button.className = "card";
+
+            button.setAttribute("aria-label", `�� ${position} �i�A�P�I`);
+
+            button.appendChild(drawDog(dog));
+
+
+
+            const card = { dog, button, position };
+
+            button.addEventListener("click", () => flipCard(card));
+
+
+
+            return button;
+
+        }
+
+
+
+        // �P�ɧ�s�e���P�d�����ҡA�л\�ɥuŪ�X��m�C
+
+        function showCard(card, isOpen) {
+
+            card.button.classList.toggle("is-open", isOpen);
+
+            const description = isOpen ? card.dog.name : "�P�I";
+
+            card.button.setAttribute("aria-label", `�� ${card.position} �i�A${description}`);
+
+        }
+
+
+
+        function flipCard(card) {
+
+            // ���ݻ\�P������ާ@�A�]����I�P�@�i�P�Τw�t�諸�P�C
+
+            if (gameOver) {
+
+                return;
+
+            }
+
+
+
+            // ���a�I���ɤ]�ˬd�ɶ��A�קK�b�˼ƭ赲�����ٯ�½�P�C
+
+            if (deadline !== null) {
+
+                updateCountdown();
+
+            }
+
+
+
+            if (gameOver || flipBackTimer !== null || card.button.classList.contains("is-open")) {
+
+                return;
+
+            }
+
+
+
+            // �Ĥ@�i���Ī�½�P�~�}�l�p�ɡC
+
+            if (deadline === null) {
+
+                startCountdown();
+
+            }
+
+
+
+            showCard(card, true);
+
+
+
+            if (firstCard === null) {
+
+                firstCard = card;
+
+                message.textContent = `½��${card.dog.name}�A�A½�@�i�C`;
+
+                return;
+
+            }
+
+
+
+            const previousCard = firstCard;
+
+            firstCard = null;
+
+
+
+            // �u������� id�C�P�@�յP�� id �ۦP�A�t���֥[ 1 ���C
+
+            if (previousCard.dog.id === card.dog.id) {
+
+                for (const matchedCard of [previousCard, card]) {
+
+                    matchedCard.button.classList.add("is-matched");
+
+                    matchedCard.button.setAttribute("aria-disabled", "true");
+
+                    matchedCard.button.setAttribute(
+
+                        "aria-label",
+
+                        `�� ${matchedCard.position} �i�A${matchedCard.dog.name}�A�w�t��`
+
+                    );
+
+                }
+
+
+
+                score += 1;
+
+                scoreDisplay.textContent = score;
+                if (score === dogs.length) {
+                    gameOver = true;
+                    stopCountdown();
+                    timerBox.classList.remove("is-urgent");
+                }
+
+
+
+                message.textContent = score === dogs.length
+
+                    ? "�q���I�A���F���� 8 �ժ����C"
+
+                    : `${card.dog.name}�t�令�\�A�ثe ${score} ���C`;
+
+                return;
+
+            }
+
+
+
+            // �t�異�Ѯ������a���� 0.9 ���A���ۧ�o��i½�^�P�I�C
+
+            message.textContent = `${previousCard.dog.name}�M${card.dog.name}�S���t��C`;
+
+
+
+            flipBackTimer = window.setTimeout(() => {
+
+                showCard(previousCard, false);
+
+                showCard(card, false);
+
+                flipBackTimer = null;
+
+                if (!gameOver) {
+                    message.textContent = "�A���i�P�C";
+                }
+
+            }, 900);
+
+        }
+
+
+
+        function startGame() {
+            stopCountdown();
+            deadline = null;
+            gameOver = false;
+            secondsLeft = gameSeconds;
+            timeDisplay.textContent = secondsLeft;
+            timerBox.classList.remove("is-urgent", "is-expired");
+
+            // ���s�}�l�ɨ����W�@���٨S���檺�\�P�p�ɾ��C
+
+            window.clearTimeout(flipBackTimer);
+
+            flipBackTimer = null;
+
+            firstCard = null;
+
+            score = 0;
+
+            scoreDisplay.textContent = score;
+
+            message.textContent = "��@�i�P�}�l�C";
+
+
+
+            // ��K�Ӥ��ة�J�P�ը⦸�A�A�~�� 16 �i�P�C
+
+            const deck = [...dogs, ...dogs];
+
+            shuffle(deck);
+
+            board.replaceChildren(...deck.map(createCard));
+
+        }
+
+
+
+        restartButton.addEventListener("click", startGame);
+
+        startGame();
+
+    </script>
+
+</body>
+
+
+
+</html>
