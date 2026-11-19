@@ -10,7 +10,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>�����O��½�P</title>
+    <title>狗狗記憶翻牌</title>
 
 
 
@@ -124,7 +124,7 @@
 
 
 
-        /* �T�w�|��A16 �i�d���|�Ʀ� 4 �� 4�C */
+        /* 固定四欄，16 張卡片會排成 4 × 4。 */
 
         .board {
 
@@ -166,7 +166,7 @@
 
 
 
-        /* �έ��ƪ��|ä��P�٧βզ���j�P�I�C */
+        /* 用重複的四瓣花與菱形組成花磚牌背。 */
 
         .card::before {
 
@@ -404,17 +404,17 @@
 
     <main class="game">
 
-        <h1>�����O��½�P</h1>
+        <h1>狗狗記憶翻牌</h1>
 
-        <p class="instructions">�C��½��i�P�A���P�@�ت����N�o 1 ���C</p>
+        <p class="instructions">每次翻兩張牌，找到同一種狗狗就得 1 分。</p>
 
 
 
         <div class="toolbar">
 
-            <p class="score">���� <span id="score">0</span> / 8</p>
+            <p class="score">分數 <span id="score">0</span> / 8</p>
 
-            <button class="restart" id="restart" type="button">���s�}�l</button>
+            <button class="restart" id="restart" type="button">重新開始</button>
 
         </div>
 
@@ -424,15 +424,15 @@
 
             <div class="timer" id="timer">
 
-                <span class="timer-label">�Ѿl�ɶ�</span>
+                <span class="timer-label">剩餘時間</span>
 
-                <strong class="timer-value"><span id="timeLeft">90</span> ��</strong>
+                <strong class="timer-value"><span id="timeLeft">90</span> 秒</strong>
 
             </div>
 
 
 
-            <div class="board" id="board" role="group" aria-label="�O��½�P�P��"></div>
+            <div class="board" id="board" role="group" aria-label="記憶翻牌牌桌"></div>
 
         </div>
 
@@ -444,31 +444,31 @@
 
     <script>
 
-        // �C�Ӫ���N���@�ؤ��ءCearShape �M�w�ի��A��l��챱����P�����C
+        // 每個物件代表一種犬種。earShape 決定耳型，其餘欄位控制毛色與斑紋。
 
         const dogs = [
 
-            { id: "bernese", name: "�B���s��", fur: "#332B2A", ears: "#292425", muzzle: "#FFF8E9", earShape: "drop", marking: "blaze", accent: "#BF713F" },
+            { id: "bernese", name: "伯恩山犬", fur: "#332B2A", ears: "#292425", muzzle: "#FFF8E9", earShape: "drop", marking: "blaze", accent: "#BF713F" },
 
-            { id: "shiba", name: "���", fur: "#CA763D", ears: "#AF5830", muzzle: "#FFF0D5", earShape: "point", marking: "cheeks" },
+            { id: "shiba", name: "柴犬", fur: "#CA763D", ears: "#AF5830", muzzle: "#FFF0D5", earShape: "point", marking: "cheeks" },
 
-            { id: "corgi", name: "�_���", fur: "#D58B40", ears: "#BB6C32", muzzle: "#FFF8E9", earShape: "tall", marking: "blaze" },
+            { id: "corgi", name: "柯基犬", fur: "#D58B40", ears: "#BB6C32", muzzle: "#FFF8E9", earShape: "tall", marking: "blaze" },
 
-            { id: "golden", name: "�����y��", fur: "#DBA552", ears: "#AF7333", muzzle: "#F3C97F", earShape: "long", marking: "ruff" },
+            { id: "golden", name: "黃金獵犬", fur: "#DBA552", ears: "#AF7333", muzzle: "#F3C97F", earShape: "long", marking: "ruff" },
 
-            { id: "labrador", name: "�ԥ��Ԧh��", fur: "#79503C", ears: "#58382E", muzzle: "#A06D50", earShape: "drop", marking: "broad" },
+            { id: "labrador", name: "拉布拉多犬", fur: "#79503C", ears: "#58382E", muzzle: "#A06D50", earShape: "drop", marking: "broad" },
 
-            { id: "frenchie", name: "�k�갫����", fur: "#B89373", ears: "#806453", muzzle: "#55413C", earShape: "bat", marking: "folds" },
+            { id: "frenchie", name: "法國鬥牛犬", fur: "#B89373", ears: "#806453", muzzle: "#55413C", earShape: "bat", marking: "folds" },
 
-            { id: "samoyed", name: "�ļ��C", fur: "#FFFCF4", ears: "#E4D6C7", muzzle: "#FFFDF9", earShape: "point", marking: "ruff" },
+            { id: "samoyed", name: "薩摩耶", fur: "#FFFCF4", ears: "#E4D6C7", muzzle: "#FFFDF9", earShape: "point", marking: "ruff" },
 
-            { id: "collie", name: "��Ҫ��Ϥ�", fur: "#38383F", ears: "#292932", muzzle: "#FFFCF1", earShape: "fold", marking: "blaze" }
+            { id: "collie", name: "邊境牧羊犬", fur: "#38383F", ears: "#292932", muzzle: "#FFFCF1", earShape: "fold", marking: "blaze" }
 
         ];
 
 
 
-        // �զ����|�e�b�����A�k���H�蹳ø�s�C
+        // 耳朵路徑畫在左側，右側以鏡像繪製。
 
         const earPaths = {
 
@@ -534,7 +534,7 @@
 
         function updateCountdown() {
 
-            // �ι�ڸg�L���ɶ��p��A���^�����ɤ]�|��s�쥿�T���ơC
+            // 用實際經過的時間計算，切回分頁時也會更新到正確秒數。
 
             secondsLeft = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
 
@@ -554,7 +554,7 @@
 
                 stopCountdown();
 
-                message.textContent = `�ɶ���I�A�t��F ${score} / ${dogs.length} �աC`;
+                message.textContent = `時間到！你配對了 ${score} / ${dogs.length} 組。`;
 
             }
 
@@ -570,7 +570,7 @@
 
         }
 
-        // �q���ݩ��e���A��C�i�P�M�]�t�ۤv�b�����e���H���@�i�洫�C
+        // 從尾端往前走，把每張牌和包含自己在內的前方隨機一張交換。
 
         function shuffle(cards) {
 
@@ -752,7 +752,7 @@
 
             button.className = "card";
 
-            button.setAttribute("aria-label", `�� ${position} �i�A�P�I`);
+            button.setAttribute("aria-label", `第 ${position} 張，牌背`);
 
             button.appendChild(drawDog(dog));
 
@@ -770,15 +770,15 @@
 
 
 
-        // �P�ɧ�s�e���P�d�����ҡA�л\�ɥuŪ�X��m�C
+        // 同時更新畫面與卡片標籤，覆蓋時只讀出位置。
 
         function showCard(card, isOpen) {
 
             card.button.classList.toggle("is-open", isOpen);
 
-            const description = isOpen ? card.dog.name : "�P�I";
+            const description = isOpen ? card.dog.name : "牌背";
 
-            card.button.setAttribute("aria-label", `�� ${card.position} �i�A${description}`);
+            card.button.setAttribute("aria-label", `第 ${card.position} 張，${description}`);
 
         }
 
@@ -786,7 +786,7 @@
 
         function flipCard(card) {
 
-            // ���ݻ\�P������ާ@�A�]����I�P�@�i�P�Τw�t�諸�P�C
+            // 等待蓋牌時鎖住操作，也防止重點同一張牌或已配對的牌。
 
             if (gameOver) {
 
@@ -796,7 +796,7 @@
 
 
 
-            // ���a�I���ɤ]�ˬd�ɶ��A�קK�b�˼ƭ赲�����ٯ�½�P�C
+            // 玩家點擊時也檢查時間，避免在倒數剛結束時還能翻牌。
 
             if (deadline !== null) {
 
@@ -814,7 +814,7 @@
 
 
 
-            // �Ĥ@�i���Ī�½�P�~�}�l�p�ɡC
+            // 第一張有效的翻牌才開始計時。
 
             if (deadline === null) {
 
@@ -832,7 +832,7 @@
 
                 firstCard = card;
 
-                message.textContent = `½��${card.dog.name}�A�A½�@�i�C`;
+                message.textContent = `翻到${card.dog.name}，再翻一張。`;
 
                 return;
 
@@ -846,7 +846,7 @@
 
 
 
-            // �u������� id�C�P�@�յP�� id �ۦP�A�t���֥[ 1 ���C
+            // 只比較犬種 id。同一組牌的 id 相同，配對後累加 1 分。
 
             if (previousCard.dog.id === card.dog.id) {
 
@@ -860,7 +860,7 @@
 
                         "aria-label",
 
-                        `�� ${matchedCard.position} �i�A${matchedCard.dog.name}�A�w�t��`
+                        `第 ${matchedCard.position} 張，${matchedCard.dog.name}，已配對`
 
                     );
 
@@ -881,9 +881,9 @@
 
                 message.textContent = score === dogs.length
 
-                    ? "�q���I�A���F���� 8 �ժ����C"
+                    ? "通關！你找到了全部 8 組狗狗。"
 
-                    : `${card.dog.name}�t�令�\�A�ثe ${score} ���C`;
+                    : `${card.dog.name}配對成功，目前 ${score} 分。`;
 
                 return;
 
@@ -891,9 +891,9 @@
 
 
 
-            // �t�異�Ѯ������a���� 0.9 ���A���ۧ�o��i½�^�P�I�C
+            // 配對失敗時讓玩家先看 0.9 秒，接著把這兩張翻回牌背。
 
-            message.textContent = `${previousCard.dog.name}�M${card.dog.name}�S���t��C`;
+            message.textContent = `${previousCard.dog.name}和${card.dog.name}沒有配對。`;
 
 
 
@@ -906,7 +906,7 @@
                 flipBackTimer = null;
 
                 if (!gameOver) {
-                    message.textContent = "�A���i�P�C";
+                    message.textContent = "再選兩張牌。";
                 }
 
             }, 900);
@@ -923,7 +923,7 @@
             timeDisplay.textContent = secondsLeft;
             timerBox.classList.remove("is-urgent", "is-expired");
 
-            // ���s�}�l�ɨ����W�@���٨S���檺�\�P�p�ɾ��C
+            // 重新開始時取消上一局還沒執行的蓋牌計時器。
 
             window.clearTimeout(flipBackTimer);
 
@@ -935,11 +935,11 @@
 
             scoreDisplay.textContent = score;
 
-            message.textContent = "��@�i�P�}�l�C";
+            message.textContent = "選一張牌開始。";
 
 
 
-            // ��K�Ӥ��ة�J�P�ը⦸�A�A�~�� 16 �i�P�C
+            // 把八個犬種放入牌組兩次，再洗成 16 張牌。
 
             const deck = [...dogs, ...dogs];
 
